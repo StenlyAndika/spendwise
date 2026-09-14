@@ -8,7 +8,7 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._();
 
   static const _dbName = 'spendwise.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 3;
 
   Database? _database;
 
@@ -56,6 +56,24 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await _createIndexes(db);
+    }
+    if (oldVersion < 3) {
+      await db.update(
+        'expenses',
+        {'category': 'Minuman'},
+        where: 'category = ?',
+        whereArgs: ['Nyawer'],
+      );
+      await db.delete(
+        'categories',
+        where: 'name = ?',
+        whereArgs: ['Nyawer'],
+      );
+      await db.insert(
+        'categories',
+        {'name': 'Minuman'},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
     }
   }
 

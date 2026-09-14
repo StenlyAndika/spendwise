@@ -16,7 +16,7 @@ class CategoryColors {
     'Belanja': Color(0xFFFF6B7A),
     'Hiburan': Color(0xFFB794F4),
     'Kesehatan': Color(0xFF00FFDE),
-    'Nyawer': Color(0xFFFF8A65),
+    'Minuman': Color(0xFFFF8A65),
   };
 
   static const fallback = [
