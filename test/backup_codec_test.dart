@@ -15,10 +15,7 @@ void main() {
     ];
     const categories = ['Langganan', 'Makanan'];
 
-    final json = BackupCodec.encode(
-      categories: categories,
-      expenses: expenses,
-    );
+    final json = BackupCodec.encode(categories: categories, expenses: expenses);
     final decoded = BackupCodec.decode(json);
 
     expect(decoded.version, BackupCodec.currentVersion);

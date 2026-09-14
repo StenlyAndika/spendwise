@@ -128,17 +128,14 @@ class CategoryChartCard extends StatelessWidget {
                     child: Text(
                       entry.key,
                       style: AppStyle.bodySm.copyWith(
-                        fontWeight:
-                            isTop ? FontWeight.w800 : FontWeight.w600,
+                        fontWeight: isTop ? FontWeight.w800 : FontWeight.w600,
                         color: isTop ? AppStyle.ready : AppStyle.textPrimary,
                       ),
                     ),
                   ),
                   Text(
                     '${pct.toStringAsFixed(0)}%',
-                    style: AppStyle.caption.copyWith(
-                      color: AppStyle.textMuted,
-                    ),
+                    style: AppStyle.caption.copyWith(color: AppStyle.textMuted),
                   ),
                   const SizedBox(width: 8),
                   Text(

@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 
-class ExpenseCategory {
-  final String name;
-  final Color color;
-
-  const ExpenseCategory({required this.name, required this.color});
-}
-
 /// Predefined palette for known categories; unknown ones get a fallback.
 class CategoryColors {
   static const palette = <String, Color>{
@@ -32,8 +25,4 @@ class CategoryColors {
     final hash = name.codeUnits.fold(0, (a, b) => a + b);
     return fallback[hash % fallback.length];
   }
-
-  static List<ExpenseCategory> defaults() => palette.entries
-      .map((e) => ExpenseCategory(name: e.key, color: e.value))
-      .toList();
 }

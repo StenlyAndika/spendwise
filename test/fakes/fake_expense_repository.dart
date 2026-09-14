@@ -34,14 +34,7 @@ class FakeExpenseRepository implements ExpenseRepository {
 
   @override
   Future<List<Expense>> getExpensesForMonth(DateTime month) async {
-    return _expenses
-        .where((e) => Expense.sameMonth(e.date, month))
-        .toList();
-  }
-
-  @override
-  Future<List<Expense>> getExpensesForDay(DateTime day) async {
-    return _expenses.where((e) => Expense.sameDay(e.date, day)).toList();
+    return _expenses.where((e) => Expense.sameMonth(e.date, month)).toList();
   }
 
   @override
@@ -63,15 +56,6 @@ class FakeExpenseRepository implements ExpenseRepository {
       totals[day] = (totals[day] ?? 0) + e.amount;
     }
     return totals;
-  }
-
-  @override
-  Future<int> getDayTotal(DateTime day) async {
-    var total = 0;
-    for (final e in _expenses) {
-      if (Expense.sameDay(e.date, day)) total += e.amount;
-    }
-    return total;
   }
 
   @override

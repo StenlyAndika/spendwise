@@ -4,6 +4,7 @@ Aplikasi pelacak pengeluaran pribadi berbasis Flutter. Offline-first, data tersi
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.38.9-02569B?logo=flutter)
 ![Dart](https://img.shields.io/badge/Dart-3.10.8-0175C2?logo=dart)
+![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)
 ![License](https://img.shields.io/badge/License-GPLv3-blue)
 
 ---
@@ -30,11 +31,11 @@ Antarmuka dan format mata uang/tanggal menggunakan locale `id_ID`. Nominal disim
 
 ## Arsitektur
 
-Proyek ini memakai pemisahan berlapis (layered architecture) dengan `provider` sebagai state management dan repository pattern sebagai abstraksi data.
+Proyek ini memakai pemisahan berlapis (layered architecture) dengan **Bloc/Cubit** (`flutter_bloc`) sebagai state management dan repository pattern sebagai abstraksi data.
 
 ```
 lib/
-├── main.dart                          # Bootstrap: DB → repository → ChangeNotifierProvider
+├── main.dart                          # Bootstrap: DB → repository → BlocProvider → ExpenseCubit
 │
 ├── core/
 │   ├── theme/app_style.dart           # Warna, spacing, radius, TextStyle, ThemeData gelap
@@ -53,8 +54,10 @@ lib/
 │   │   └── sqlite_expense_repository.dart
 │   └── backup/backup_codec.dart       # Encode/decode JSON backup + validasi ketat
 │
-└── presentation/
-    ├── providers/expense_provider.dart # ChangeNotifier: state bulan aktif, hari terpilih, agregat
+├── presentation/
+    ├── cubits/
+    │   ├── expense_state.dart         # State immutable (Equatable): bulan, hari, agregat
+    │   └── expense_cubit.dart         # Cubit: navigasi bulan, CRUD, load paralel
     ├── pages/
     │   ├── home_page.dart             # Dashboard + kalender
     │   ├── add_expense_page.dart      # Form tambah/edit
@@ -73,15 +76,23 @@ lib/
 
 ```
 UI (Widget)
-   ↓ context.watch / context.read
-ExpenseProvider (ChangeNotifier)   ← state: visibleMonth, selectedDay, agregat
+   ↓ BlocBuilder / context.read
+ExpenseCubit (Cubit<ExpenseState>)   ← emit state baru, bukan notifyListeners
    ↓
 ExpenseRepository (interface)
    ↓
 SqliteExpenseRepository  →  sqflite  →  spendwise.db
 ```
 
-`ExpenseProvider._loadMonth()` memuat empat query secara paralel (`Future.wait`): daftar pengeluaran bulan berjalan, total per kategori, total per hari, dan daftar kategori. Semua agregasi berat dikerjakan di SQL (`GROUP BY`, `SUM`).
+`ExpenseCubit.loadMonth()` memuat empat query secara paralel (`Future.wait`): daftar pengeluaran bulan berjalan, total per kategori, total per hari, dan daftar kategori. Semua agregasi berat dikerjakan di SQL (`GROUP BY`, `SUM`).
+
+### State Management
+
+- **`ExpenseState`** — satu objek immutable berisi `visibleMonth`, `selectedDay`, `monthExpenses`, `categoryTotals`, `dayTotals`, `categories`, dan `loading`. Memakai `Equatable` sehingga emit dengan snapshot identik tidak memicu rebuild. Turunan seperti `monthTotal`, `transactionCount`, `expensesForDay()` dan `dayTotal()` adalah getter, bukan state terpisah.
+- **`ExpenseCubit`** — memuat data saat dibuat, lalu mengekspos `prevMonth`, `nextMonth`, `setSelectedDay`, `refresh`, `addExpense`, `updateExpense`, `deleteExpense`, `exportBackup`, dan `importBackup`.
+- **Widget** — membaca state lewat `BlocBuilder<ExpenseCubit, ExpenseState>` dan memanggil aksi lewat `context.read<ExpenseCubit>()`.
+
+Perilaku yang dipertahankan: menambah/mengubah pengeluaran di bulan lain otomatis memindahkan tampilan ke bulan tersebut, dan memilih hari di luar bulan yang terlihat akan jatuh ke tanggal 1 (atau hari ini bila bulannya berjalan).
 
 ---
 
@@ -160,7 +171,13 @@ flutter analyze         # analisis statis (flutter_lints)
 flutter build apk --release
 ```
 
-Target platform yang tersedia di repositori ini: **Android** dan **macOS**.
+Untuk menambahkan platform lain di masa depan:
+
+```bash
+flutter create --platforms=<nama-platform> .
+```
+
+Proyek ini **khusus Android**. Direktori `macos/`, `ios/`, `linux/`, `windows/`, dan `web/` sudah dihapus dan tidak di-scaffold.
 
 ---
 
@@ -168,7 +185,8 @@ Target platform yang tersedia di repositori ini: **Android** dan **macOS**.
 
 | Paket | Versi | Kegunaan |
 | :--- | :--- | :--- |
-| `provider` | ^6.1.2 | State management (`ChangeNotifier`) |
+| `flutter_bloc` | ^9.1.0 | State management (Cubit/Bloc) |
+| `equatable` | ^2.0.7 | Perbandingan nilai untuk state immutable |
 | `sqflite` | ^2.4.2 | Penyimpanan lokal SQLite |
 | `path` / `path_provider` | ^1.9.1 / ^2.1.5 | Resolusi path database & direktori dokumen |
 | `intl` | ^0.20.3 | Format tanggal & mata uang locale `id_ID` |
@@ -186,11 +204,12 @@ Dev: `flutter_lints` ^6.0.0.
 flutter test
 ```
 
+- `test/expense_cubit_test.dart` — perilaku `ExpenseCubit`: load bulan, tambah/edit/hapus, agregat total, navigasi bulan, dan reset hari terpilih.
 - `test/backup_codec_test.dart` — round-trip encode/decode dan penolakan versi backup yang tidak didukung.
 - `test/widget_test.dart` — render judul halaman utama dan navigasi tombol **Riwayat** menuju halaman riwayat.
-- `test/fakes/fake_expense_repository.dart` — implementasi in-memory `ExpenseRepository` agar widget test tidak menyentuh sqflite.
+- `test/fakes/fake_expense_repository.dart` — implementasi in-memory `ExpenseRepository` agar cubit & widget test tidak menyentuh sqflite.
 
-Saat ini: **4 test, semuanya lulus.**
+Saat ini: **13 test, semuanya lulus.**
 
 ---
 
@@ -202,6 +221,7 @@ Saat ini: **4 test, semuanya lulus.**
 - **Warna & ukuran**: jangan hardcode — ambil dari `AppStyle`.
 - **ID pengeluaran**: `millisecondsSinceEpoch` sebagai string.
 - **Lint**: ikuti aturan `flutter_lints`; pastikan `flutter analyze` bersih sebelum commit.
+- **State**: jangan tambahkan `setState` untuk data domain — semua state bersama lewat `ExpenseCubit`.
 
 ---
 

@@ -19,14 +19,13 @@ class Expense {
     String? category,
     String? description,
     int? amount,
-  }) =>
-      Expense(
-        id: id ?? this.id,
-        date: date ?? this.date,
-        category: category ?? this.category,
-        description: description ?? this.description,
-        amount: amount ?? this.amount,
-      );
+  }) => Expense(
+    id: id ?? this.id,
+    date: date ?? this.date,
+    category: category ?? this.category,
+    description: description ?? this.description,
+    amount: amount ?? this.amount,
+  );
 
   static DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 

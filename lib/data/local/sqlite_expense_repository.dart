@@ -65,17 +65,6 @@ class SqliteExpenseRepository implements ExpenseRepository {
   }
 
   @override
-  Future<List<Expense>> getExpensesForDay(DateTime day) async {
-    final rows = await _db.query(
-      'expenses',
-      where: 'date = ?',
-      whereArgs: [_formatDate(day)],
-      orderBy: 'id DESC',
-    );
-    return rows.map(_expenseFromRow).toList();
-  }
-
-  @override
   Future<Map<String, int>> getCategoryTotalsForMonth(DateTime month) async {
     final rows = await _db.rawQuery(
       '''
@@ -88,8 +77,7 @@ class SqliteExpenseRepository implements ExpenseRepository {
     );
 
     return {
-      for (final row in rows)
-        row['category'] as String: row['total'] as int,
+      for (final row in rows) row['category'] as String: row['total'] as int,
     };
   }
 
@@ -114,15 +102,6 @@ class SqliteExpenseRepository implements ExpenseRepository {
   }
 
   @override
-  Future<int> getDayTotal(DateTime day) async {
-    final rows = await _db.rawQuery(
-      'SELECT COALESCE(SUM(amount), 0) AS total FROM expenses WHERE date = ?',
-      [_formatDate(day)],
-    );
-    return rows.first['total'] as int;
-  }
-
-  @override
   Future<String> exportBackupJson() async {
     final categories = await getCategories();
     final rows = await _db.query('expenses', orderBy: 'date ASC, id ASC');
@@ -143,11 +122,9 @@ class SqliteExpenseRepository implements ExpenseRepository {
 
       final batch = txn.batch();
       for (final category in backup.categories) {
-        batch.insert(
-          'categories',
-          {'name': category},
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+        batch.insert('categories', {
+          'name': category,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
       for (final expense in backup.expenses) {
         batch.insert(
@@ -155,11 +132,9 @@ class SqliteExpenseRepository implements ExpenseRepository {
           _expenseToRow(expense),
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
-        batch.insert(
-          'categories',
-          {'name': expense.category.trim()},
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+        batch.insert('categories', {
+          'name': expense.category.trim(),
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
       await batch.commit(noResult: true);
     });
@@ -168,20 +143,18 @@ class SqliteExpenseRepository implements ExpenseRepository {
   Future<void> _upsertCategory(DatabaseExecutor txn, String category) async {
     final name = category.trim();
     if (name.isEmpty) return;
-    await txn.insert(
-      'categories',
-      {'name': name},
-      conflictAlgorithm: ConflictAlgorithm.ignore,
-    );
+    await txn.insert('categories', {
+      'name': name,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 
   Map<String, Object> _expenseToRow(Expense expense) => {
-        'id': expense.id,
-        'date': _formatDate(expense.date),
-        'category': expense.category,
-        'description': expense.description,
-        'amount': expense.amount,
-      };
+    'id': expense.id,
+    'date': _formatDate(expense.date),
+    'category': expense.category,
+    'description': expense.description,
+    'amount': expense.amount,
+  };
 
   Expense _expenseFromRow(Map<String, Object?> row) {
     final date = DateTime.parse(row['date'] as String);

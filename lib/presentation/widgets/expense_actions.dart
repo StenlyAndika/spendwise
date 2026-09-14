@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/models/expense.dart';
+import '../cubits/expense_cubit.dart';
 import '../pages/add_expense_page.dart';
-import '../providers/expense_provider.dart';
 
 Future<void> editExpense(BuildContext context, Expense expense) async {
   final saved = await AddExpensePage.openEdit(context, expense: expense);
@@ -14,10 +14,7 @@ Future<void> editExpense(BuildContext context, Expense expense) async {
   }
 }
 
-Future<void> confirmDeleteExpense(
-  BuildContext context,
-  Expense expense,
-) async {
+Future<void> confirmDeleteExpense(BuildContext context, Expense expense) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
@@ -38,10 +35,10 @@ Future<void> confirmDeleteExpense(
 
   if (confirmed != true || !context.mounted) return;
 
-  await context.read<ExpenseProvider>().deleteExpense(expense.id);
+  await context.read<ExpenseCubit>().deleteExpense(expense.id);
   if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Pengeluaran dihapus')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Pengeluaran dihapus')));
   }
 }

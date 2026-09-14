@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:provider/provider.dart';
 
 import 'core/theme/app_style.dart';
 import 'data/local/database_helper.dart';
 import 'data/local/sqlite_expense_repository.dart';
+import 'presentation/cubits/expense_cubit.dart';
 import 'presentation/pages/home_page.dart';
-import 'presentation/providers/expense_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +16,8 @@ Future<void> main() async {
   final repository = SqliteExpenseRepository(db);
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ExpenseProvider(repository),
+    BlocProvider(
+      create: (_) => ExpenseCubit(repository),
       child: const SpendwiseApp(),
     ),
   );

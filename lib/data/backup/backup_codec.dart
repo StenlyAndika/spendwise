@@ -70,12 +70,12 @@ class BackupCodec {
   }
 
   static Map<String, dynamic> _expenseToJson(Expense expense) => {
-        'id': expense.id,
-        'date': _formatDate(expense.date),
-        'category': expense.category,
-        'description': expense.description,
-        'amount': expense.amount,
-      };
+    'id': expense.id,
+    'date': _formatDate(expense.date),
+    'category': expense.category,
+    'description': expense.description,
+    'amount': expense.amount,
+  };
 
   static Expense _expenseFromJson(dynamic raw) {
     if (raw is! Map<String, dynamic>) {

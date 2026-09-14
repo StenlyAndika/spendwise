@@ -64,16 +64,10 @@ class DatabaseHelper {
         where: 'category = ?',
         whereArgs: ['Nyawer'],
       );
-      await db.delete(
-        'categories',
-        where: 'name = ?',
-        whereArgs: ['Nyawer'],
-      );
-      await db.insert(
-        'categories',
-        {'name': 'Minuman'},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
+      await db.delete('categories', where: 'name = ?', whereArgs: ['Nyawer']);
+      await db.insert('categories', {
+        'name': 'Minuman',
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
     }
   }
 

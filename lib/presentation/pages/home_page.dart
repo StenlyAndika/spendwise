@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import '../../core/theme/app_style.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../domain/models/expense.dart';
-import '../providers/expense_provider.dart';
+import '../cubits/expense_cubit.dart';
+import '../cubits/expense_state.dart';
 import '../widgets/expense_actions.dart';
 import '../widgets/expense_log_card.dart';
 import '../widgets/metric_cards_row.dart';
@@ -43,10 +44,10 @@ class _HomePageState extends State<HomePage> {
     return '${names[month.month - 1]} ${month.year}';
   }
 
-  Future<void> _openAddExpense(ExpenseProvider provider) async {
+  Future<void> _openAddExpense(ExpenseCubit cubit) async {
     final saved = await AddExpensePage.open(
       context,
-      initialDate: provider.selectedDay,
+      initialDate: cubit.state.selectedDay,
     );
     if (saved == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,99 +58,104 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ExpenseProvider>();
-    final month = provider.visibleMonth;
-    final selectedDay = provider.selectedDay;
-    final dayExpenses = provider.expensesForDay(selectedDay);
-    final dayTotal = provider.dayTotal(selectedDay);
+    return BlocBuilder<ExpenseCubit, ExpenseState>(
+      builder: (context, state) {
+        final cubit = context.read<ExpenseCubit>();
+        final selectedDay = state.selectedDay;
+        final dayExpenses = state.expensesForDay(selectedDay);
+        final dayTotal = state.dayTotal(selectedDay);
 
-    return Scaffold(
-      appBar: WorkspaceAppBar(
-        title: 'Spendwise',
-        subtitle: 'Catat · Review · Analisa',
-        monthLabel: _monthLabel(month),
-        onPrevMonth: provider.prevMonth,
-        onNextMonth: provider.nextMonth,
-        onSettings: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const BackupPage()),
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ExpenseMetricCardsRow(
-            monthTotal: CurrencyFormatter.format(provider.monthTotal),
-            transactionCount: provider.transactionCount,
+        return Scaffold(
+          appBar: WorkspaceAppBar(
+            title: 'Spendwise',
+            subtitle: 'Catat · Review · Analisa',
+            monthLabel: _monthLabel(state.visibleMonth),
+            onPrevMonth: cubit.prevMonth,
+            onNextMonth: cubit.nextMonth,
+            onSettings: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BackupPage()),
+            ),
           ),
-          Expanded(
-            child: provider.loading
-                ? const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2.5),
-                  )
-                : LayoutBuilder(
-                    builder: (context, constraints) {
-                      const minLogHeight = 72.0;
-                      final calendarMaxHeight =
-                          (constraints.maxHeight - minLogHeight)
-                              .clamp(180.0, constraints.maxHeight);
-
-                      return Column(
-                        children: [
-                          Expanded(
-                            child: RefreshIndicator(
-                              onRefresh: provider.refresh,
-                              child: _dayLogArea(
-                                selectedDay: selectedDay,
-                                expenses: dayExpenses,
-                                dayTotal: dayTotal,
-                              ),
-                            ),
-                          ),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: calendarMaxHeight,
-                            ),
-                            child: SingleChildScrollView(
-                              child: _calendarPanel(provider),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          decoration: const BoxDecoration(
-            color: AppStyle.surface,
-            border: Border(top: BorderSide(color: AppStyle.borderLight)),
-          ),
-          child: Row(
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => SpendHistoryPage.open(context),
-                  icon: const Icon(Icons.history_rounded, size: 18),
-                  label: const Text('Riwayat'),
-                ),
+              ExpenseMetricCardsRow(
+                monthTotal: CurrencyFormatter.format(state.monthTotal),
+                transactionCount: state.transactionCount,
               ),
-              const SizedBox(width: 10),
               Expanded(
-                flex: 2,
-                child: FilledButton.icon(
-                  onPressed: () => _openAddExpense(provider),
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('Tambah Pengeluaran'),
-                ),
+                child: state.loading
+                    ? const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2.5),
+                      )
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          const minLogHeight = 72.0;
+                          final calendarMaxHeight =
+                              (constraints.maxHeight - minLogHeight).clamp(
+                                180.0,
+                                constraints.maxHeight,
+                              );
+
+                          return Column(
+                            children: [
+                              Expanded(
+                                child: RefreshIndicator(
+                                  onRefresh: cubit.refresh,
+                                  child: _dayLogArea(
+                                    selectedDay: selectedDay,
+                                    expenses: dayExpenses,
+                                    dayTotal: dayTotal,
+                                  ),
+                                ),
+                              ),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight: calendarMaxHeight,
+                                ),
+                                child: SingleChildScrollView(
+                                  child: _calendarPanel(state, cubit),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
               ),
             ],
           ),
-        ),
-      ),
+          bottomNavigationBar: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              decoration: const BoxDecoration(
+                color: AppStyle.surface,
+                border: Border(top: BorderSide(color: AppStyle.borderLight)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => SpendHistoryPage.open(context),
+                      icon: const Icon(Icons.history_rounded, size: 18),
+                      label: const Text('Riwayat'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 2,
+                    child: FilledButton.icon(
+                      onPressed: () => _openAddExpense(cubit),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Tambah Pengeluaran'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -158,8 +164,10 @@ class _HomePageState extends State<HomePage> {
     required List<Expense> expenses,
     required int dayTotal,
   }) {
-    final dateLabel =
-        DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(selectedDay);
+    final dateLabel = DateFormat(
+      'EEEE, d MMMM yyyy',
+      'id_ID',
+    ).format(selectedDay);
 
     if (expenses.isEmpty) {
       return LayoutBuilder(
@@ -259,9 +267,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _calendarPanel(ExpenseProvider provider) {
-    final statusLabel = provider.monthTotal > 0
-        ? 'Total ${DateFormat('MMMM yyyy', 'id_ID').format(provider.visibleMonth)}: ${CurrencyFormatter.format(provider.monthTotal)}'
+  Widget _calendarPanel(ExpenseState state, ExpenseCubit cubit) {
+    final statusLabel = state.monthTotal > 0
+        ? 'Total ${DateFormat('MMMM yyyy', 'id_ID').format(state.visibleMonth)}: ${CurrencyFormatter.format(state.monthTotal)}'
         : 'Belum ada pengeluaran di bulan ini.';
 
     return Material(
@@ -330,11 +338,11 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           const SizedBox(height: 10),
                           MonthCalendarCard(
-                            visibleMonth: provider.visibleMonth,
-                            selectedDay: provider.selectedDay,
-                            dayTotals: provider.dayTotals,
+                            visibleMonth: state.visibleMonth,
+                            selectedDay: state.selectedDay,
+                            dayTotals: state.dayTotals,
                             showMonthNavigation: false,
-                            onDayTap: provider.setSelectedDay,
+                            onDayTap: cubit.setSelectedDay,
                           ),
                         ],
                       )

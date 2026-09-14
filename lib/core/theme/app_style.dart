@@ -42,23 +42,21 @@ class AppStyle {
     Color color = surface,
     double radius = radiusSm,
     bool hasBorder = true,
-  }) =>
-      BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(radius),
-        border: hasBorder ? Border.all(color: border) : null,
-      );
+  }) => BoxDecoration(
+    color: color,
+    borderRadius: BorderRadius.circular(radius),
+    border: hasBorder ? Border.all(color: border) : null,
+  );
 
   static InputDecoration inputDecoration(
     String label, {
     bool isDense = false,
-  }) =>
-      InputDecoration(
-        labelText: label,
-        isDense: isDense,
-        filled: true,
-        fillColor: surfaceLight,
-      );
+  }) => InputDecoration(
+    labelText: label,
+    isDense: isDense,
+    filled: true,
+    fillColor: surfaceLight,
+  );
 
   static ThemeData get darkTheme {
     final scheme = ColorScheme.fromSeed(

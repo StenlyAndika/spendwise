@@ -251,15 +251,9 @@ class ExpenseLogCard extends StatelessWidget {
       },
       itemBuilder: (context) => [
         if (onEdit != null)
-          const PopupMenuItem(
-            value: 'edit',
-            child: Text('Edit'),
-          ),
+          const PopupMenuItem(value: 'edit', child: Text('Edit')),
         if (onDelete != null)
-          const PopupMenuItem(
-            value: 'delete',
-            child: Text('Hapus'),
-          ),
+          const PopupMenuItem(value: 'delete', child: Text('Hapus')),
       ],
     );
   }
