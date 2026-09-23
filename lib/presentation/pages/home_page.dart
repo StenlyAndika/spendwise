@@ -27,32 +27,14 @@ class _HomePageState extends State<HomePage> {
   bool _showMonthCard = true;
 
   String _monthLabel(DateTime month) {
-    const names = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agu',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
+    const names = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     return '${names[month.month - 1]} ${month.year}';
   }
 
   Future<void> _openAddExpense(ExpenseCubit cubit) async {
-    final saved = await AddExpensePage.open(
-      context,
-      initialDate: cubit.state.selectedDay,
-    );
+    final saved = await AddExpensePage.open(context, initialDate: cubit.state.selectedDay);
     if (saved == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pengeluaran berhasil disimpan')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pengeluaran berhasil disimpan')));
     }
   }
 
@@ -72,10 +54,7 @@ class _HomePageState extends State<HomePage> {
             monthLabel: _monthLabel(state.visibleMonth),
             onPrevMonth: cubit.prevMonth,
             onNextMonth: cubit.nextMonth,
-            onSettings: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const BackupPage()),
-            ),
+            onSettings: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupPage())),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -86,17 +65,14 @@ class _HomePageState extends State<HomePage> {
               ),
               Expanded(
                 child: state.loading
-                    ? const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2.5),
-                      )
+                    ? const Center(child: CircularProgressIndicator(strokeWidth: 2.5))
                     : LayoutBuilder(
                         builder: (context, constraints) {
                           const minLogHeight = 72.0;
-                          final calendarMaxHeight =
-                              (constraints.maxHeight - minLogHeight).clamp(
-                                180.0,
-                                constraints.maxHeight,
-                              );
+                          final calendarMaxHeight = (constraints.maxHeight - minLogHeight).clamp(
+                            180.0,
+                            constraints.maxHeight,
+                          );
 
                           return Column(
                             children: [
@@ -111,12 +87,8 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxHeight: calendarMaxHeight,
-                                ),
-                                child: SingleChildScrollView(
-                                  child: _calendarPanel(state, cubit),
-                                ),
+                                constraints: BoxConstraints(maxHeight: calendarMaxHeight),
+                                child: SingleChildScrollView(child: _calendarPanel(state, cubit)),
                               ),
                             ],
                           );
@@ -159,15 +131,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _dayLogArea({
-    required DateTime selectedDay,
-    required List<Expense> expenses,
-    required int dayTotal,
-  }) {
-    final dateLabel = DateFormat(
-      'EEEE, d MMMM yyyy',
-      'id_ID',
-    ).format(selectedDay);
+  Widget _dayLogArea({required DateTime selectedDay, required List<Expense> expenses, required int dayTotal}) {
+    final dateLabel = DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(selectedDay);
 
     if (expenses.isEmpty) {
       return LayoutBuilder(
@@ -201,18 +166,12 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: Text(
                     dateLabel,
-                    style: AppStyle.bodySm.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppStyle.textSecondary,
-                    ),
+                    style: AppStyle.bodySm.copyWith(fontWeight: FontWeight.w700, color: AppStyle.textSecondary),
                   ),
                 ),
                 Text(
                   CurrencyFormatter.format(dayTotal),
-                  style: AppStyle.bodySm.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppStyle.ready,
-                  ),
+                  style: AppStyle.bodySm.copyWith(fontWeight: FontWeight.w800, color: AppStyle.ready),
                 ),
               ],
             ),
@@ -229,12 +188,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _statusView({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String subtitle,
-  }) {
+  Widget _statusView({required IconData icon, required Color color, required String title, required String subtitle}) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -244,10 +198,7 @@ class _HomePageState extends State<HomePage> {
             Container(
               width: 64,
               height: 64,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 30),
             ),
             const SizedBox(height: 16),
@@ -256,10 +207,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: AppStyle.body.copyWith(
-                color: AppStyle.textSecondary,
-                height: 1.4,
-              ),
+              style: AppStyle.body.copyWith(color: AppStyle.textSecondary, height: 1.4),
             ),
           ],
         ),
@@ -285,11 +233,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.calendar_month_outlined,
-                  size: 17,
-                  color: AppStyle.textMuted,
-                ),
+                const Icon(Icons.calendar_month_outlined, size: 17, color: AppStyle.textMuted),
                 const SizedBox(width: 7),
                 Text(
                   'KALENDER PENGELUARAN',
@@ -301,12 +245,9 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const Spacer(),
                 IconButton(
-                  tooltip: _showMonthCard
-                      ? 'Sembunyikan kalender'
-                      : 'Tampilkan kalender',
+                  tooltip: _showMonthCard ? 'Sembunyikan kalender' : 'Tampilkan kalender',
                   visualDensity: VisualDensity.compact,
-                  onPressed: () =>
-                      setState(() => _showMonthCard = !_showMonthCard),
+                  onPressed: () => setState(() => _showMonthCard = !_showMonthCard),
                   icon: AnimatedRotation(
                     turns: _showMonthCard ? 0.5 : 0.0,
                     duration: const Duration(milliseconds: 260),
@@ -318,10 +259,7 @@ class _HomePageState extends State<HomePage> {
             ),
             Text(
               statusLabel,
-              style: AppStyle.bodySm.copyWith(
-                color: AppStyle.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppStyle.bodySm.copyWith(color: AppStyle.textSecondary, fontWeight: FontWeight.w600),
             ),
             AnimatedSize(
               duration: const Duration(milliseconds: 280),

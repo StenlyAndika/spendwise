@@ -31,7 +31,11 @@ class SpendwiseApp extends StatelessWidget {
     return MaterialApp(
       title: 'Spendwise',
       debugShowCheckedModeBanner: false,
-      theme: AppStyle.darkTheme,
+      theme: AppStyle.lightTheme,
+      // The palette is light-only, so pin it instead of falling back to the
+      // platform brightness, which would otherwise pick darkTheme (null) and
+      // leave the brightness signal wrong on a dark-mode device.
+      themeMode: ThemeMode.light,
       home: const HomePage(),
     );
   }

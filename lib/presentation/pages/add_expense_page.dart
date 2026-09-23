@@ -296,7 +296,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: AppStyle.onPrimary,
                           ),
                         )
                       : Text(

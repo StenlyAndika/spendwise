@@ -32,16 +32,9 @@ class ExpenseLogCard extends StatelessWidget {
         decoration: AppStyle.cardDecoration(),
         child: Column(
           children: [
-            Icon(
-              Icons.receipt_long_outlined,
-              size: 40,
-              color: AppStyle.textMuted.withValues(alpha: 0.6),
-            ),
+            Icon(Icons.receipt_long_outlined, size: 40, color: AppStyle.textMuted.withValues(alpha: 0.6)),
             const SizedBox(height: 12),
-            Text(
-              'Belum ada pengeluaran',
-              style: AppStyle.heading.copyWith(fontSize: 14),
-            ),
+            Text('Belum ada pengeluaran', style: AppStyle.heading.copyWith(fontSize: 14)),
             const SizedBox(height: 4),
             Text(
               'Tambah pengeluaran untuk mulai mencatat.',
@@ -57,9 +50,7 @@ class ExpenseLogCard extends StatelessWidget {
       return Container(
         clipBehavior: Clip.antiAlias,
         decoration: AppStyle.cardDecoration(),
-        child: Column(
-          children: [for (final expense in expenses) _compactRow(expense)],
-        ),
+        child: Column(children: [for (final expense in expenses) _compactRow(expense)]),
       );
     }
 
@@ -78,11 +69,7 @@ class ExpenseLogCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: AppStyle.cardDecoration(),
-      child: Column(
-        children: [
-          for (final day in order) ..._buildDayGroup(day, groups[day]!),
-        ],
-      ),
+      child: Column(children: [for (final day in order) ..._buildDayGroup(day, groups[day]!)]),
     );
   }
 
@@ -99,10 +86,7 @@ class ExpenseLogCard extends StatelessWidget {
 
   Widget _dateHeader(String date, int count) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppStyle.paddingLg,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppStyle.paddingLg, vertical: 8),
       decoration: const BoxDecoration(
         color: AppStyle.surfaceLight,
         border: Border(bottom: BorderSide(color: AppStyle.border)),
@@ -112,16 +96,10 @@ class ExpenseLogCard extends StatelessWidget {
           Expanded(
             child: Text(
               date,
-              style: AppStyle.bodySm.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppStyle.textSecondary,
-              ),
+              style: AppStyle.bodySm.copyWith(fontWeight: FontWeight.w700, color: AppStyle.textSecondary),
             ),
           ),
-          Text(
-            '$count item',
-            style: AppStyle.caption.copyWith(color: AppStyle.textMuted),
-          ),
+          Text('$count item', style: AppStyle.caption.copyWith(color: AppStyle.textMuted)),
         ],
       ),
     );
@@ -132,25 +110,22 @@ class ExpenseLogCard extends StatelessWidget {
     final dateLabel = DateFormat('d MMM', 'id_ID').format(expense.date);
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppStyle.paddingLg,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppStyle.paddingLg, vertical: 10),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppStyle.borderLight)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        // Center rather than `start`: the chip, the amount and the overflow
+        // menu all have different intrinsic heights, so starting them all at
+        // the top makes the one-line text look misaligned.
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (showDate) ...[
             SizedBox(
               width: 42,
               child: Text(
                 dateLabel,
-                style: AppStyle.caption.copyWith(
-                  color: AppStyle.textMuted,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: AppStyle.caption.copyWith(color: AppStyle.textMuted, fontWeight: FontWeight.w700),
               ),
             ),
           ],
@@ -163,26 +138,17 @@ class ExpenseLogCard extends StatelessWidget {
             ),
             child: Text(
               expense.category,
-              style: AppStyle.caption.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppStyle.caption.copyWith(color: color, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              expense.description,
-              style: AppStyle.body.copyWith(fontWeight: FontWeight.w600),
-            ),
+            child: Text(expense.description, style: AppStyle.body.copyWith(fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 8),
           Text(
             CurrencyFormatter.format(expense.amount),
-            style: AppStyle.bodySm.copyWith(
-              fontWeight: FontWeight.w800,
-              color: AppStyle.ready,
-            ),
+            style: AppStyle.bodySm.copyWith(fontWeight: FontWeight.w800, color: AppStyle.ready),
           ),
           if (_hasActions) _actionMenu(expense),
         ],
@@ -193,15 +159,12 @@ class ExpenseLogCard extends StatelessWidget {
   Widget _expenseRow(Expense expense) {
     final color = CategoryColors.forName(expense.category);
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppStyle.paddingLg,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppStyle.paddingLg, vertical: 10),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppStyle.borderLight)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -212,26 +175,17 @@ class ExpenseLogCard extends StatelessWidget {
             ),
             child: Text(
               expense.category,
-              style: AppStyle.caption.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppStyle.caption.copyWith(color: color, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              expense.description,
-              style: AppStyle.body.copyWith(fontWeight: FontWeight.w600),
-            ),
+            child: Text(expense.description, style: AppStyle.body.copyWith(fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 8),
           Text(
             CurrencyFormatter.format(expense.amount),
-            style: AppStyle.bodySm.copyWith(
-              fontWeight: FontWeight.w800,
-              color: AppStyle.ready,
-            ),
+            style: AppStyle.bodySm.copyWith(fontWeight: FontWeight.w800, color: AppStyle.ready),
           ),
           if (_hasActions) _actionMenu(expense),
         ],
@@ -250,20 +204,15 @@ class ExpenseLogCard extends StatelessWidget {
         }
       },
       itemBuilder: (context) => [
-        if (onEdit != null)
-          const PopupMenuItem(value: 'edit', child: Text('Edit')),
-        if (onDelete != null)
-          const PopupMenuItem(value: 'delete', child: Text('Hapus')),
+        if (onEdit != null) const PopupMenuItem(value: 'edit', child: Text('Edit')),
+        if (onDelete != null) const PopupMenuItem(value: 'delete', child: Text('Hapus')),
       ],
     );
   }
 
   Widget _dateFooter(int total) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppStyle.paddingLg,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppStyle.paddingLg, vertical: 7),
       decoration: BoxDecoration(
         color: AppStyle.surfaceRaised.withValues(alpha: 0.4),
         border: const Border(bottom: BorderSide(color: AppStyle.border)),
@@ -271,14 +220,8 @@ class ExpenseLogCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text(
-            'Subtotal: ',
-            style: AppStyle.caption.copyWith(color: AppStyle.textMuted),
-          ),
-          Text(
-            CurrencyFormatter.format(total),
-            style: AppStyle.bodySm.copyWith(fontWeight: FontWeight.w800),
-          ),
+          Text('Subtotal: ', style: AppStyle.caption.copyWith(color: AppStyle.textMuted)),
+          Text(CurrencyFormatter.format(total), style: AppStyle.bodySm.copyWith(fontWeight: FontWeight.w800)),
         ],
       ),
     );

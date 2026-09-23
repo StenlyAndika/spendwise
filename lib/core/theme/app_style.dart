@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
 
+/// Light-mode design tokens.
+///
+/// These are consumed statically (e.g. `AppStyle.surface` inside `const`
+/// widgets), so the palette lives as compile-time constants rather than being
+/// threaded through the widget tree off `Theme.of(context)`.
 class AppStyle {
-  static const scaffoldBg = Color(0xFF0B0E14);
-  static const surface = Color(0xFF121722);
-  static const surfaceLight = Color(0xFF1A2130);
-  static const surfaceRaised = Color(0xFF20293A);
-  static const border = Color(0xFF263044);
-  static const borderLight = Color(0xFF20293A);
+  // Surfaces, from page background down to raised elements.
+  static const scaffoldBg = Color(0xFFF4F6FB);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceLight = Color(0xFFF1F4FA);
+  static const surfaceRaised = Color(0xFFE6EBF5);
+  static const border = Color(0xFFDCE2EE);
+  static const borderLight = Color(0xFFE8ECF4);
 
   static const primary = Color(0xFF112E81);
-  static const success = Color(0xFF47D18C);
-  static const successBg = Color(0xFF143B2B);
-  static const error = Color(0xFFFF6B7A);
-  static const errorBg = Color(0xFF491D27);
-  static const warning = Color(0xFFFFB454);
-  static const warningBg = Color(0xFF49351B);
-  static const info = Color(0xFF65B7FF);
-  static const ready = Color(0xFF00FFDE);
 
-  static const textPrimary = Color(0xFFF5F7FB);
-  static const textSecondary = Color(0xFFAAB4C5);
-  static const textMuted = Color(0xFF717D91);
+  static const success = Color(0xFF47D18C);
+  static const successBg = Color(0xFFDCF5E8);
+  static const error = Color(0xFFD92D4B);
+  static const errorBg = Color(0xFFFCE4E8);
+  static const warning = Color(0xFFE08A00);
+  static const warningBg = Color(0xFFFDF0DA);
+  static const info = Color(0xFF65B7FF);
+
+  /// Amount highlights. In dark mode this was a bright cyan, which is
+  /// unreadable on a near-white background, so it becomes a deep teal.
+  static const ready = Color(0xFF0E9F81);
+
+  static const textPrimary = Color(0xFF131A26);
+  static const textSecondary = Color(0xFF56606F);
+  static const textMuted = Color(0xFF7C8698);
+
+  /// Foreground for content sitting on [primary] (filled buttons).
+  static const onPrimary = Color(0xFFFFFFFF);
 
   static const double paddingMd = 12;
   static const double paddingLg = 16;
@@ -58,11 +71,12 @@ class AppStyle {
     fillColor: surfaceLight,
   );
 
-  static ThemeData get darkTheme {
+  static ThemeData get lightTheme {
     final scheme = ColorScheme.fromSeed(
       seedColor: primary,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       surface: surface,
+      onSurface: textPrimary,
       error: error,
     );
     final outline = OutlineInputBorder(
@@ -71,7 +85,7 @@ class AppStyle {
     );
 
     return ThemeData(
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: scaffoldBg,
@@ -93,6 +107,10 @@ class AppStyle {
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: scaffoldBg,
+        // AppBar derives its SystemUiOverlayStyle (status bar icons) from
+        // these, so light icons would land on a light bar without them.
+        foregroundColor: textPrimary,
+        iconTheme: IconThemeData(color: textSecondary),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
@@ -134,7 +152,7 @@ class AppStyle {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: primary,
-          foregroundColor: Colors.white,
+          foregroundColor: onPrimary,
           minimumSize: const Size(0, 48),
           padding: const EdgeInsets.symmetric(horizontal: 18),
           textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
@@ -159,25 +177,40 @@ class AppStyle {
         style: IconButton.styleFrom(foregroundColor: textSecondary),
       ),
       dividerColor: border,
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: surfaceRaised,
-        contentTextStyle: const TextStyle(color: textPrimary),
+      // Inverted for light mode: a dark bar with light text, since
+      // surfaceRaised is now near-white.
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: textPrimary,
+        contentTextStyle: TextStyle(color: onPrimary, fontSize: 13),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusMd),
+          borderRadius: BorderRadius.all(Radius.circular(radiusMd)),
         ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
         ),
       ),
       datePickerTheme: DatePickerThemeData(
         backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
         ),
+      ),
+      // The style param is non-const, so the defaults stay in the constructor
+      // and the whole thing is not `const` (harmless).
+      popupMenuTheme: PopupMenuThemeData(
+        color: surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+        ),
+        textStyle: body,
       ),
     );
   }
