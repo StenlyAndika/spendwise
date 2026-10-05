@@ -10,6 +10,12 @@ class ExpenseLogCard extends StatelessWidget {
   final List<Expense> expenses;
   final bool compact;
   final bool showDate;
+
+  /// Overridable so a filtered list can explain that the emptiness is caused by
+  /// the filter rather than by a lack of expenses.
+  final String emptyTitle;
+  final String emptyMessage;
+
   final void Function(Expense expense)? onEdit;
   final void Function(Expense expense)? onDelete;
 
@@ -18,6 +24,8 @@ class ExpenseLogCard extends StatelessWidget {
     required this.expenses,
     this.compact = false,
     this.showDate = true,
+    this.emptyTitle = 'Belum ada pengeluaran',
+    this.emptyMessage = 'Tambah pengeluaran untuk mulai mencatat.',
     this.onEdit,
     this.onDelete,
   });
@@ -34,10 +42,10 @@ class ExpenseLogCard extends StatelessWidget {
           children: [
             Icon(Icons.receipt_long_outlined, size: 40, color: AppStyle.textMuted.withValues(alpha: 0.6)),
             const SizedBox(height: 12),
-            Text('Belum ada pengeluaran', style: AppStyle.heading.copyWith(fontSize: 14)),
+            Text(emptyTitle, style: AppStyle.heading.copyWith(fontSize: 14)),
             const SizedBox(height: 4),
             Text(
-              'Tambah pengeluaran untuk mulai mencatat.',
+              emptyMessage,
               textAlign: TextAlign.center,
               style: AppStyle.body.copyWith(color: AppStyle.textSecondary),
             ),

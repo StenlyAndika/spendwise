@@ -10,6 +10,7 @@ import 'expense_state.dart';
 /// `emit()` transitions instead of `notifyListeners()`:
 ///
 /// * [setSelectedDay] / [setVisibleMonth] change navigation only.
+/// * [setCategoryFilter] narrows the list view; it touches no repository.
 /// * [_loadMonth] fetches the four aggregates in parallel and emits once.
 /// * add/update jump to the affected month when it is off-screen.
 class ExpenseCubit extends Cubit<ExpenseState> {
@@ -42,6 +43,23 @@ class ExpenseCubit extends Cubit<ExpenseState> {
   );
 
   Future<void> refresh() => loadMonth();
+
+  /// Adds or removes [category] from the active category filter.
+  void toggleCategoryFilter(String category) {
+    final next = [...state.selectedCategories];
+    if (!next.remove(category)) next.add(category);
+    next.sort();
+    emit(state.copyWith(selectedCategories: next));
+  }
+
+  /// Replaces the whole selection, as the filter sheet's "Terapkan" does.
+  void setCategoryFilter(List<String> categories) {
+    final next = [...categories]..sort();
+    emit(state.copyWith(selectedCategories: next));
+  }
+
+  void clearCategoryFilter() =>
+      emit(state.copyWith(selectedCategories: const []));
 
   Future<void> addExpense({
     required DateTime date,

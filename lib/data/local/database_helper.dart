@@ -8,7 +8,7 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._();
 
   static const _dbName = 'spendwise.db';
-  static const _dbVersion = 3;
+  static const _dbVersion = 4;
 
   Database? _database;
 
@@ -58,17 +58,33 @@ class DatabaseHelper {
       await _createIndexes(db);
     }
     if (oldVersion < 3) {
-      await db.update(
-        'expenses',
-        {'category': 'Minuman'},
-        where: 'category = ?',
-        whereArgs: ['Nyawer'],
-      );
-      await db.delete('categories', where: 'name = ?', whereArgs: ['Nyawer']);
-      await db.insert('categories', {
-        'name': 'Minuman',
-      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      await _renameCategory(db, 'Nyawer', 'Minuman');
     }
+    if (oldVersion < 4) {
+      await _renameCategory(db, 'Hiburan', 'Jajan');
+      await _renameCategory(db, 'Kesehatan', 'Topup');
+    }
+  }
+
+  /// Moves [from] to [to] across `expenses` and `categories` so historical
+  /// spending keeps its category instead of being orphaned.
+  Future<void> _renameCategory(
+    DatabaseExecutor db,
+    String from,
+    String to,
+  ) async {
+    await db.update(
+      'expenses',
+      {'category': to},
+      where: 'category = ?',
+      whereArgs: [from],
+    );
+    await db.delete('categories', where: 'name = ?', whereArgs: [from]);
+    await db.insert(
+      'categories',
+      {'name': to},
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
   }
 
   Future<void> _createIndexes(Database db) async {

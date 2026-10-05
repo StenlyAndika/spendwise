@@ -10,6 +10,11 @@ class WorkspaceAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onNextMonth;
   final VoidCallback? onSettings;
 
+  /// When non-null, renders a filter action. [filterActive] dots it so the
+  /// user can tell a narrowed list from an unfiltered one at a glance.
+  final VoidCallback? onFilter;
+  final bool filterActive;
+
   const WorkspaceAppBar({
     super.key,
     required this.title,
@@ -18,6 +23,8 @@ class WorkspaceAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onPrevMonth,
     this.onNextMonth,
     this.onSettings,
+    this.onFilter,
+    this.filterActive = false,
   });
 
   @override
@@ -40,6 +47,18 @@ class WorkspaceAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        if (onFilter != null) ...[
+          Badge(
+            isLabelVisible: filterActive,
+            smallSize: 7,
+            child: IconButton(
+              tooltip: 'Filter kategori',
+              onPressed: onFilter,
+              icon: const Icon(Icons.filter_list_rounded),
+            ),
+          ),
+          const SizedBox(width: 4),
+        ],
         if (monthLabel != null) ...[
           IconButton(
             tooltip: 'Bulan sebelumnya',

@@ -50,7 +50,7 @@ lib/
 │
 ├── data/                              # Implementasi konkret
 │   ├── local/
-│   │   ├── database_helper.dart       # Singleton sqflite, skema + migrasi (v3)
+│   │   ├── database_helper.dart       # Singleton sqflite, skema + migrasi (v4)
 │   │   └── sqlite_expense_repository.dart
 │   └── backup/backup_codec.dart       # Encode/decode JSON backup + validasi ketat
 │
@@ -122,8 +122,9 @@ CREATE INDEX idx_expenses_date ON expenses(date);
 | :---: | :--- |
 | 1 → 2 | Menambahkan index `idx_expenses_date`. |
 | 2 → 3 | Mengganti nama kategori `Nyawer` menjadi `Minuman` pada tabel `expenses` dan `categories`. |
+| 3 → 4 | Mengganti nama kategori `Hiburan` menjadi `Jajan` dan `Kesehatan` menjadi `Topup` pada tabel `expenses` dan `categories`. |
 
-Kategori awal yang di-seed saat pembuatan database: `Langganan`, `Makanan`, `Transport`, `Belanja`, `Hiburan`, `Kesehatan`, `Minuman`. Kategori baru otomatis ditambahkan saat menyimpan pengeluaran.
+Kategori awal yang di-seed saat pembuatan database: `Makanan`, `Transport`, `Belanja`, `Jajan`, `Topup`, `Minuman`. Kategori baru otomatis ditambahkan saat menyimpan pengeluaran.
 
 ---
 
@@ -135,7 +136,7 @@ Ekspor menghasilkan file `spendwise-backup-YYYYMMDD.json`:
 {
   "version": 1,
   "exportedAt": "2026-09-14T02:15:00.000Z",
-  "categories": ["Belanja", "Hiburan", "Makanan"],
+  "categories": ["Belanja", "Jajan", "Makanan"],
   "expenses": [
     {
       "id": "1757812800000",

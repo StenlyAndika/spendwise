@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 /// Predefined palette for known categories; unknown ones get a fallback.
+///
+/// This drives the *seed* list on a fresh install. Categories added later —
+/// including ones removed from this map — live in the `categories` table and
+/// keep working, falling back to [fallback] colours.
 class CategoryColors {
   static const palette = <String, Color>{
-    'Langganan': Color(0xFF65B7FF),
     'Makanan': Color(0xFFFFB454),
     'Transport': Color(0xFF47D18C),
     'Belanja': Color(0xFFFF6B7A),
-    'Hiburan': Color(0xFFB794F4),
-    'Kesehatan': Color(0xFF00FFDE),
+    'Jajan': Color(0xFFB794F4),
+    'Topup': Color(0xFF00FFDE),
     'Minuman': Color(0xFFFF8A65),
   };
 

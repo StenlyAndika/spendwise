@@ -103,7 +103,7 @@ void main() {
   test('deleteExpense removes the expense and drops totals', () async {
     await cubit.addExpense(
       date: DateTime.now(),
-      category: 'Hiburan',
+      category: 'Jajan',
       description: 'Bioskop',
       amount: 60000,
     );
@@ -142,5 +142,94 @@ void main() {
     await cubit.setSelectedDay(day);
 
     expect(cubit.state.selectedDay, DateTime(2026, 3, 14));
+  });
+
+  Future<void> seedMixedExpenses() async {
+    await cubit.addExpense(
+      date: DateTime.now(),
+      category: 'Makanan',
+      description: 'Nasi goreng',
+      amount: 25000,
+    );
+    await cubit.addExpense(
+      date: DateTime.now(),
+      category: 'Transport',
+      description: 'Ojek',
+      amount: 15000,
+    );
+    await cubit.addExpense(
+      date: DateTime.now(),
+      category: 'Makanan',
+      description: 'Kopi',
+      amount: 20000,
+    );
+  }
+
+  test('toggleCategoryFilter adds then removes a category', () async {
+    await seedMixedExpenses();
+
+    cubit.toggleCategoryFilter('Makanan');
+    expect(cubit.state.selectedCategories, ['Makanan']);
+    expect(cubit.state.hasCategoryFilter, isTrue);
+
+    cubit.toggleCategoryFilter('Makanan');
+    expect(cubit.state.selectedCategories, isEmpty);
+    expect(cubit.state.hasCategoryFilter, isFalse);
+  });
+
+  test('filteredExpenses narrows the list without touching monthExpenses', () async {
+    await seedMixedExpenses();
+
+    cubit.setCategoryFilter(['Makanan']);
+
+    expect(cubit.state.monthExpenses, hasLength(3));
+    expect(cubit.state.filteredExpenses, hasLength(2));
+    expect(
+      cubit.state.filteredExpenses.every((e) => e.category == 'Makanan'),
+      isTrue,
+    );
+  });
+
+  test('filteredExpenses unions multiple selected categories', () async {
+    await seedMixedExpenses();
+
+    cubit.setCategoryFilter(['Transport', 'Makanan']);
+
+    expect(cubit.state.selectedCategories, ['Makanan', 'Transport']);
+    expect(cubit.state.filteredExpenses, hasLength(3));
+  });
+
+  test('setCategoryFilter with an empty list clears the filter', () async {
+    await seedMixedExpenses();
+    cubit.setCategoryFilter(['Makanan']);
+
+    cubit.setCategoryFilter([]);
+
+    expect(cubit.state.selectedCategories, isEmpty);
+    expect(cubit.state.filteredExpenses, hasLength(3));
+  });
+
+  test('clearCategoryFilter restores the full list', () async {
+    await seedMixedExpenses();
+    cubit.setCategoryFilter(['Makanan']);
+
+    cubit.clearCategoryFilter();
+
+    expect(cubit.state.hasCategoryFilter, isFalse);
+    expect(cubit.state.filteredExpenses, hasLength(3));
+  });
+
+  test('the category filter survives a month reload', () async {
+    await seedMixedExpenses();
+    cubit.setCategoryFilter(['Makanan']);
+
+    await cubit.loadMonth();
+    expect(cubit.state.selectedCategories, ['Makanan']);
+
+    await cubit.prevMonth();
+    expect(cubit.state.selectedCategories, ['Makanan']);
+
+    await cubit.nextMonth();
+    expect(cubit.state.selectedCategories, ['Makanan']);
   });
 }

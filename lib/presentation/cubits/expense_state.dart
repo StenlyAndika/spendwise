@@ -26,6 +26,13 @@ class ExpenseState extends Equatable {
   /// Known category names, alphabetical.
   final List<String> categories;
 
+  /// Categories the expense list is narrowed to. Empty means "no filter".
+  ///
+  /// Kept sorted by the cubit so Equatable's structural list comparison stays
+  /// stable across emissions — a plain `Set` would compare by identity and
+  /// force a rebuild on every toggle.
+  final List<String> selectedCategories;
+
   /// True while the initial month load has not produced data yet.
   final bool loading;
 
@@ -36,6 +43,7 @@ class ExpenseState extends Equatable {
     this.categoryTotals = const {},
     this.dayTotals = const {},
     this.categories = const [],
+    this.selectedCategories = const [],
     this.loading = true,
   });
 
@@ -51,6 +59,16 @@ class ExpenseState extends Equatable {
   int get monthTotal => monthExpenses.fold(0, (sum, e) => sum + e.amount);
 
   int get transactionCount => monthExpenses.length;
+
+  bool get hasCategoryFilter => selectedCategories.isNotEmpty;
+
+  /// [monthExpenses] narrowed to [selectedCategories], or all of them when no
+  /// filter is active.
+  List<Expense> get filteredExpenses => hasCategoryFilter
+      ? monthExpenses
+            .where((e) => selectedCategories.contains(e.category))
+            .toList()
+      : monthExpenses;
 
   List<Expense> expensesForDay(DateTime day) {
     final list =
@@ -73,6 +91,7 @@ class ExpenseState extends Equatable {
     Map<String, int>? categoryTotals,
     Map<DateTime, int>? dayTotals,
     List<String>? categories,
+    List<String>? selectedCategories,
     bool? loading,
   }) => ExpenseState(
     visibleMonth: visibleMonth ?? this.visibleMonth,
@@ -81,6 +100,7 @@ class ExpenseState extends Equatable {
     categoryTotals: categoryTotals ?? this.categoryTotals,
     dayTotals: dayTotals ?? this.dayTotals,
     categories: categories ?? this.categories,
+    selectedCategories: selectedCategories ?? this.selectedCategories,
     loading: loading ?? this.loading,
   );
 
@@ -92,6 +112,7 @@ class ExpenseState extends Equatable {
     categoryTotals,
     dayTotals,
     categories,
+    selectedCategories,
     loading,
   ];
 }

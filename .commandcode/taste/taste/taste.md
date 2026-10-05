@@ -1,0 +1,16 @@
+# Taste
+- Prefers building the UI with mock data first to preview how the app looks/feels, then wiring in real data/persistence afterward. Confidence: 0.75
+- Expects leftover scaffolding (mock data) to be removed/cleaned up once the UI is approved and real data is in place. Confidence: 0.7
+- After a feature is done, appreciates a follow-up pass for optimization and small polish rather than stopping at "it works". Confidence: 0.65
+- Iterates on UI in short, terse feedback loops (e.g. adjusting element heights/positions) until it looks right, rather than specifying exact pixel values up front. Confidence: 0.6
+- Wants local-first persistence (SQLite) with explicit DB export/import so data survives reinstalls. Confidence: 0.65
+- Uses Indonesian-language labels for app UI text (e.g. Riwayat, Ringkasan Kategori, Bulan). Confidence: 0.6
+- Builds Flutter apps. Confidence: 0.7
+- Gives terse, imperative change requests (lowercase, no detail on scope, colors, tests, or docs) and expects the assistant to infer the full ripple — the surrounding tests, docs, and seed data should be updated without being asked. Confidence: 0.7
+- Renames of values already persisted in SQLite should move rows across both `expenses` and `categories` so historical spending keeps its category, following the repo's existing migration version precedent rather than dropping or orphaning old rows. Confidence: 0.55 (weaker than the rest: the user never spoke to this decision, only to the rename itself)
+- Prefers colloquial, personal-finance-flavoured names over formal taxonomy terms — renamed `Hiburan`/`Kesehatan` to `Jajan`/`Topup`, and had already renamed `Nyawer` to `Minuman`. Confidence: 0.6
+- Answers design questions decisively and approves the written plan without edits, so the plan can be treated as settled rather than a proposal to renegotiate. Confidence: 0.6
+- Prefers non-destructive handling when a seeded/default value is *removed*: change the seed list only, leave existing installs' rows and history intact (accepting degraded fallback rendering) rather than adding a purge migration. Contrast with the rename preference above, where data is actively moved. Confidence: 0.6
+- Installs the app on a real phone and checks the actual UI there before treating a change as validated; expects a change to seed data to be visible in the running app. Confidence: 0.65
+- When runtime behaviour surprises them ("why is X still there ... is that okay?"), wants the mechanism explained plainly — where the value actually comes from at runtime vs. at creation time — plus an explicit bug/not-a-bug verdict and the full list of options. A terse "yes that's fine" is not enough. Confidence: 0.65
+- Picks one of the offered options and then does not absorb the indirect consequences — so spell out the user-visible effect of the chosen option in the completion summary, especially anything that only shows up on their own installed device. Confidence: 0.6
